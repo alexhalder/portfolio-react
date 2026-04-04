@@ -173,8 +173,10 @@ const Portfolio = () => {
                 <div className="section-content">
                     <div className="about-content">
                         <div className="about-cube" style={{ justifyContent: 'flex-start', flex: '1' }}>
-                            <div style={{ width: '450px', height: '550px', transform: 'scale(1.4) translateX(-20px)' }}>
-                                <spline-viewer url="https://prod.spline.design/mKk5sTE0MA88XyTS/scene.splinecode"></spline-viewer>
+                            <div className="model-float">
+                                <div style={{ width: '450px', height: '500px', transform: 'scale(1.4) translateX(10px)' }}>
+                                    <spline-viewer url="https://prod.spline.design/mKk5sTE0MA88XyTS/scene.splinecode"></spline-viewer>
+                                </div>
                             </div>
                         </div>
                         <div className="about-text" style={{ flex: '1.5', paddingLeft: '40px' }}>

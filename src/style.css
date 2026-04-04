@@ -420,12 +420,18 @@ section {
     }
 }
 
-.cube {
-    width: 200px;
-    height: 200px;
-    position: relative;
+.model-float {
+    animation: modelFloating 6s ease-in-out infinite;
     transform-style: preserve-3d;
-    animation: rotate 15s infinite linear;
+}
+
+@keyframes modelFloating {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-15px);
+    }
 }
 
 @keyframes rotate {
