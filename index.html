@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ax - Portfolio</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script type="module" src="https://unpkg.com/@splinetool/viewer@1.12.74/build/spline-viewer.js"></script>
+    <!-- Coding rain will be drawn on a full-screen canvas below -->
     <style>
       body, html {
         margin: 0;
@@ -18,7 +18,16 @@
       #root, .container, section, footer, nav {
         background: transparent !important;
       }
-      .spline-background {
+      body, html {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        min-height: 100%;
+        background: linear-gradient(180deg, #020617 0%, #081028 100%);
+        color: #e6eef8;
+      }
+
+      .rain-background {
         position: fixed;
         top: 0;
         left: 0;
@@ -26,8 +35,9 @@
         height: 100vh;
         z-index: -1;
         pointer-events: none;
+        overflow: hidden;
       }
-      spline-viewer {
+      #bgCanvas {
         width: 100% !important;
         height: 100% !important;
         display: block;
@@ -39,10 +49,73 @@
     </style>
   </head>
   <body>
-    <div class="spline-background">
-      <spline-viewer url="https://prod.spline.design/liLhhHDDZWOg5pge/scene.splinecode"></spline-viewer>
+    <div class="rain-background">
+      <canvas id="bgCanvas"></canvas>
     </div>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      (function () {
+        const canvas = document.getElementById('bgCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+
+        let width = 0; let height = 0;
+        function resize() {
+          width = canvas.width = window.innerWidth;
+          height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        const chars = '01{}[]()<>=+-*/\\|;:.,_~abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+        // create particles with depth for pseudo-3D effect
+        const PARTICLE_COUNT = Math.floor((width * height) / 8000);
+        const particles = [];
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+          const z = Math.random() * 0.9 + 0.2; // 0.2 .. 1.1
+          particles.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            z: z,
+            speed: (0.4 + Math.random() * 1.4) * z,
+            size: Math.max(8, Math.round(12 * z + Math.random() * 6)),
+            char: chars.charAt(Math.floor(Math.random() * chars.length)),
+            switchInterval: 4 + Math.floor(Math.random() * 20)
+          });
+        }
+
+        let tick = 0;
+        function draw() {
+          tick++;
+          // fade background slightly to create trailing effect
+          ctx.fillStyle = 'rgba(1,6,12,0.12)';
+          ctx.fillRect(0, 0, width, height);
+
+          for (let p of particles) {
+            p.y += p.speed;
+            if (p.y > height + 20) p.y = -20 - Math.random() * 100;
+            if (tick % p.switchInterval === 0) p.char = chars.charAt(Math.floor(Math.random() * chars.length));
+
+            const glow = Math.min(1, 0.6 + (p.z - 0.2));
+            ctx.font = `${p.size}px monospace`;
+            ctx.textBaseline = 'top';
+            // color gradient: bright cyan/green with depth-based alpha
+            ctx.fillStyle = `rgba(${Math.floor(60 + 180 * (1 - p.z))}, ${Math.floor(220 - 120 * p.z)}, ${Math.floor(180 + 40 * (1 - p.z))}, ${0.65 * glow})`;
+            ctx.shadowColor = 'rgba(80,220,200,0.08)';
+            ctx.shadowBlur = 8 * (p.z + 0.2);
+            ctx.fillText(p.char, p.x, p.y);
+          }
+
+          requestAnimationFrame(draw);
+        }
+
+        // initial clear + dark fill
+        ctx.fillStyle = '#01030a';
+        ctx.fillRect(0, 0, width, height);
+        draw();
+      })();
+    </script>
   </body>
 </html>

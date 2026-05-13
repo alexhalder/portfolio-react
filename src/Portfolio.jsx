@@ -174,8 +174,18 @@ const Portfolio = () => {
                     <div className="about-content">
                         <div className="about-cube" style={{ justifyContent: 'flex-start', flex: '1' }}>
                             <div className="model-float">
-                                <div style={{ width: '450px', height: '500px', transform: 'scale(1.4) translateX(10px)' }}>
-                                    <spline-viewer url="https://prod.spline.design/mKk5sTE0MA88XyTS/scene.splinecode"></spline-viewer>
+                                <div style={{ width: '540px', height: '580px', transform: 'scale(1) translateX(0px)' }}>
+                                    <ModelTyper />
+                                </div>
+                                <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}>
+                                    <div className="tech-cube" aria-hidden>
+                                        <div className="cube-face front"><i className="fab fa-react" style={{ color: '#61DAFB', fontSize: '28px' }}></i></div>
+                                        <div className="cube-face right"><i className="fab fa-js-square" style={{ color: '#F7DF1E', fontSize: '28px' }}></i></div>
+                                        <div className="cube-face left"><i className="fab fa-node" style={{ color: '#68A063', fontSize: '28px' }}></i></div>
+                                        <div className="cube-face top"><i className="fas fa-database" style={{ color: '#9AD3E7', fontSize: '22px' }}></i></div>
+                                        <div className="cube-face back"><i className="fab fa-github" style={{ color: '#fff', fontSize: '24px' }}></i></div>
+                                        <div className="cube-face bottom"><i className="fab fa-css3-alt" style={{ color: '#1572B6', fontSize: '24px' }}></i></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -325,3 +335,62 @@ const ContactItem = ({ icon, title, value }) => (
 )
 
 export default Portfolio;
+
+/* ModelTyper component: shows a terminal-like typing animation */
+function ModelTyper() {
+    const [display, setDisplay] = React.useState('');
+    const lines = [
+        "const name = 'Alex Halder'",
+        "const role = 'Frontend Engineer'",
+        "const focus = ['React', 'Vite', 'Firebase', 'CSS']",
+        "// Building clean, fast UI & delightful UX"
+    ];
+
+    React.useEffect(() => {
+        let lineIndex = 0;
+        let charIndex = 0;
+        let forward = true;
+        let timeout;
+
+        function tick() {
+            const current = lines[lineIndex];
+            if (forward) {
+                charIndex++;
+                setDisplay(current.slice(0, charIndex));
+                if (charIndex === current.length) {
+                    forward = false;
+                    timeout = setTimeout(tick, 1000);
+                    return;
+                }
+            } else {
+                charIndex--;
+                setDisplay(current.slice(0, charIndex));
+                if (charIndex === 0) {
+                    forward = true;
+                    lineIndex = (lineIndex + 1) % lines.length;
+                }
+            }
+            timeout = setTimeout(tick, forward ? 40 : 20);
+        }
+
+        tick();
+        return () => clearTimeout(timeout);
+    }, []);
+
+    return (
+        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', gap: '14px', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="terminal" style={{ width: '100%', maxWidth: '520px', padding: '18px', borderRadius: '12px', background: 'linear-gradient(180deg, rgba(4,10,20,0.85), rgba(2,6,12,0.6))', border: '1px solid rgba(255,255,255,0.04)', boxShadow: '0 10px 30px rgba(0,0,0,0.6)' }}>
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+                    <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#ff5f56', display: 'inline-block' }}></span>
+                    <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#ffbd2e', display: 'inline-block' }}></span>
+                    <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#27c93f', display: 'inline-block' }}></span>
+                </div>
+                <pre style={{ color: '#bfe9ff', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, monospace', fontSize: '16px', lineHeight: 1.35, margin: 0, minHeight: '78px' }}>{display}<span className="typer-cursor">|</span></pre>
+            </div>
+            <div style={{ width: '100%', maxWidth: '520px', textAlign: 'center', opacity: 0.9 }}>
+                <h3 style={{ margin: '8px 0', color: 'var(--primary)' }}>{/* name shown in hero already */}Frontend • UI-focused</h3>
+                <p style={{ margin: 0, fontSize: '0.95rem', opacity: 0.9 }}>Crafting responsive interfaces and performant web apps — clean code and great UX.</p>
+            </div>
+        </div>
+    );
+}

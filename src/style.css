@@ -6,13 +6,13 @@
 }
 
 :root {
-    --primary: #00d2ff;
-    --secondary: #0a192f;
-    --accent: #ff4d4d;
+    --primary: #2dd4bf; /* teal */
+    --secondary: #071126; /* deep navy */
+    --accent: #7c3aed; /* violet */
     --light: #e6f1ff;
-    --dark: #020c1b;
-    --glass: rgba(255, 255, 255, 0.03);
-    --glass-border: rgba(255, 255, 255, 0.1);
+    --dark: #020617;
+    --glass: rgba(255, 255, 255, 0.02);
+    --glass-border: rgba(255, 255, 255, 0.06);
 }
 
 body {
@@ -33,16 +33,16 @@ nav {
     position: fixed;
     top: 0;
     width: 100%;
-    padding: 20px 50px;
+    padding: 18px 48px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     z-index: 1000;
-    background: rgba(10, 25, 47, 0.2);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--glass-border);
+    background: rgba(6, 12, 24, 0.6);
+    backdrop-filter: blur(24px);
+    border-bottom: 1px solid rgba(255,255,255,0.03);
     transform: translateY(-100%);
-    animation: slideDown 0.8s ease-out forwards;
+    animation: slideDown 0.7s ease-out forwards;
 }
 
 @keyframes slideDown {
@@ -206,14 +206,16 @@ section {
 }
 
 .hero-text h1 {
-    font-size: 3.5rem;
-    margin-bottom: 20px;
-    background: linear-gradient(to right, var(--primary), var(--accent));
+    font-size: 3.8rem;
+    margin-bottom: 16px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    text-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
-    animation: textGlow 3s ease-in-out infinite alternate;
+    text-shadow: 0 6px 24px rgba(12, 36, 56, 0.45);
+    font-weight: 800;
+    letter-spacing: 0.6px;
+    animation: textGlow 3.6s ease-in-out infinite alternate;
 }
 
 @keyframes textGlow {
@@ -236,20 +238,21 @@ section {
 
 .btn {
     display: inline-block;
-    padding: 12px 30px;
-    background: var(--primary);
-    color: white;
-    border-radius: 30px;
+    padding: 12px 28px;
+    background: linear-gradient(90deg, rgba(45,212,191,0.95), rgba(124,58,237,0.95));
+    color: #041223;
+    border-radius: 28px;
     text-decoration: none;
-    font-weight: 600;
-    transition: all 0.3s;
-    border: 2px solid var(--primary);
+    font-weight: 700;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
     transform-style: preserve-3d;
     position: relative;
     overflow: hidden;
     opacity: 0;
     animation: fadeIn 1s ease-out 1s forwards;
     cursor: pointer;
+    box-shadow: 0 8px 24px rgba(7, 18, 34, 0.45);
+    border: none;
 }
 
 .btn::before {
@@ -284,16 +287,17 @@ section {
 }
 
 .profile-card {
-    width: 300px;
-    height: 400px;
-    background: linear-gradient(135deg, rgba(52, 152, 219, 0.2), rgba(231, 76, 60, 0.2));
-    border-radius: 20px;
+    width: 320px;
+    height: 420px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius: 18px;
     position: relative;
     transform-style: preserve-3d;
-    transition: transform 0.5s;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    transition: transform 0.45s ease, box-shadow 0.45s ease;
+    box-shadow: 0 18px 40px rgba(3,10,20,0.6);
     overflow: hidden;
     animation: cardFloat 8s ease-in-out infinite;
+    border: 1px solid var(--glass-border);
 }
 
 @keyframes cardFloat {
@@ -372,15 +376,19 @@ section {
 
 .about-content {
     display: flex;
-    gap: 50px;
+    gap: 46px;
+    align-items: stretch;
     align-items: center;
+    max-width: 1100px;
+    margin: 0 auto;
 }
 
 .about-text {
     flex: 2;
     opacity: 0;
-    transform: translateX(-50px);
-    animation: slideInFromLeft 1s ease-out forwards;
+    transform: translateX(-40px);
+    animation: slideInFromLeft 0.9s ease-out forwards;
+    padding-right: 12px;
 }
 
 @keyframes slideInFromLeft {
@@ -391,15 +399,17 @@ section {
 }
 
 .about-text h2 {
-    font-size: 2.5rem;
-    margin-bottom: 20px;
-    color: var(--primary);
+    font-size: 2.2rem;
+    margin-bottom: 18px;
+    color: var(--light);
+    letter-spacing: 0.4px;
 }
 
 .about-text p {
-    font-size: 1.1rem;
-    line-height: 1.8;
-    margin-bottom: 20px;
+    font-size: 1.05rem;
+    line-height: 1.9;
+    margin-bottom: 18px;
+    color: rgba(230,241,255,0.9);
 }
 
 .about-cube {
@@ -424,6 +434,34 @@ section {
     animation: modelFloating 6s ease-in-out infinite;
     transform-style: preserve-3d;
 }
+
+/* Terminal / ModelTyper styles */
+.terminal {
+    border-radius: 12px;
+    padding: 16px;
+    background: linear-gradient(180deg, rgba(6,10,18,0.85), rgba(4,8,14,0.65));
+    border: 1px solid rgba(255,255,255,0.04);
+    box-shadow: 0 12px 30px rgba(2,6,12,0.6);
+    max-width: 520px;
+    width: 100%;
+}
+.typer-cursor {
+    display: inline-block;
+    margin-left: 6px;
+    color: var(--primary);
+    animation: blink 1s steps(2, start) infinite;
+}
+@keyframes blink { 50% { opacity: 0 } }
+
+/* Tech cube (small decorative cube under the terminal) */
+.tech-cube { position: relative; width: 160px; height: 160px; transform-style: preserve-3d; animation: rotate 9s cubic-bezier(0.22,0.61,0.36,1) infinite; transform-origin: center; }
+.tech-cube .cube-face { width: 140px; height: 140px; margin: 10px; border-radius: 12px; display:flex; align-items:center; justify-content:center; background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.03); box-shadow: 0 10px 30px rgba(0,0,0,0.45); }
+.tech-cube .front { transform: translateZ(70px); }
+.tech-cube .back { transform: translateZ(-70px) rotateY(180deg); }
+.tech-cube .right { transform: translateX(70px) rotateY(90deg); }
+.tech-cube .left { transform: translateX(-70px) rotateY(-90deg); }
+.tech-cube .top { transform: translateY(-70px) rotateX(90deg); }
+.tech-cube .bottom { transform: translateY(70px) rotateX(-90deg); }
 
 @keyframes modelFloating {
     0%, 100% {
