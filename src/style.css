@@ -1249,3 +1249,10 @@ body.admin-mode nav {
 
 /* Ensure admin content sits above the background (canvas will be z-index 0) */
 body.admin-mode .admin-content { position: relative; z-index: 1; }
+
+/* Hide global top nav on small screens (phones) */
+@media (max-width: 640px) {
+    nav {
+        display: none !important;
+    }
+}
