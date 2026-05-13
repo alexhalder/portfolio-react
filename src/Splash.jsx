@@ -1,9 +1,43 @@
-import React from 'react'
+import React, { useRef, useEffect } from 'react'
+import AdminParticles from './AdminParticles'
 
 export default function Splash({ message = 'Welcome', subtitle = 'Opening portfolio…' }) {
+  const cardRef = useRef(null)
+
+  useEffect(() => {
+    const el = cardRef.current
+    if (!el) return
+
+    function onMove(e) {
+      const rect = el.getBoundingClientRect()
+      const cx = rect.left + rect.width / 2
+      const cy = rect.top + rect.height / 2
+      const dx = (e.clientX - cx) / rect.width
+      const dy = (e.clientY - cy) / rect.height
+      const rotX = (-dy * 6).toFixed(2)
+      const rotY = (dx * 8).toFixed(2)
+      el.style.transform = `translateZ(24px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale(1.01)`
+    }
+
+    function onLeave() { el.style.transform = 'translateZ(0) rotateX(0) rotateY(0) scale(1)' }
+
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('touchmove', onMove)
+    window.addEventListener('mouseout', onLeave)
+    window.addEventListener('touchend', onLeave)
+
+    return () => {
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('touchmove', onMove)
+      window.removeEventListener('mouseout', onLeave)
+      window.removeEventListener('touchend', onLeave)
+    }
+  }, [])
+
   return (
     <div className="splash-overlay" role="status" aria-live="polite">
-      <div className="splash-card">
+      <AdminParticles count={60} color="200,220,255" />
+      <div className="splash-card" ref={cardRef}>
         <div className="splash-brand">
           <svg className="splash-ring" viewBox="0 0 100 100" aria-hidden>
             <defs>
@@ -24,4 +58,5 @@ export default function Splash({ message = 'Welcome', subtitle = 'Opening portfo
     </div>
   )
 }
+
 

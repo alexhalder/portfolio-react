@@ -276,8 +276,8 @@ section {
 
 .btn:hover {
     background: transparent;
-    transform: translateY(-5px) scale(1.05);
-    box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+    transform: scale(1.03);
+    box-shadow: 0 14px 30px rgba(52, 152, 219, 0.18);
 }
 
 .hero-image {
@@ -441,7 +441,7 @@ section {
 
 .bn-item.active {
     color: var(--primary);
-    transform: translateY(-2px);
+    transform: scale(1.02);
 }
 
 .bn-item.active svg { color: var(--primary); }
@@ -1293,15 +1293,23 @@ body.mobile-view {
     background: linear-gradient(180deg, rgba(2,6,20,0.95), rgba(6,12,24,0.96));
     z-index: 2500;
 }
-.splash-inner {
-    text-align: center;
-    color: var(--light);
-    padding: 28px 36px;
-    border-radius: 12px;
-    backdrop-filter: blur(6px);
-    border: 1px solid rgba(255,255,255,0.03);
-    box-shadow: 0 18px 60px rgba(0,0,0,0.6);
+.splash-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    padding: 36px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    border-radius: 16px;
+    box-shadow: 0 30px 80px rgba(3,10,20,0.7);
+    border: 1px solid rgba(255,255,255,0.04);
+    transform-style: preserve-3d;
+    transition: transform 160ms ease, box-shadow 160ms ease;
+    will-change: transform;
+    z-index: 2510;
+    max-width: 420px;
 }
+
 .splash-card {
     display: flex;
     flex-direction: column;
@@ -1354,4 +1362,31 @@ body.mobile-view {
 
 @keyframes fadeUp {
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* gentle floating motion to give depth */
+@keyframes splashFloat {
+    0% { transform: translateY(0) translateZ(0) }
+    50% { transform: translateY(-6px) translateZ(6px) }
+    100% { transform: translateY(0) translateZ(0) }
+}
+.splash-card { animation: splashFloat 6s ease-in-out infinite; }
+
+/* reduce particle brightness behind splash for contrast */
+.splash-overlay canvas { filter: blur(0.6px) contrast(1.05) saturate(1.1); }
+
+/* Custom cursor styles */
+.custom-cursor { position: fixed; left: 0; top: 0; pointer-events: none; z-index: 4000; }
+.cursor-dot, .cursor-ring { position: fixed; left: 0; top: 0; transform: translate(-50%, -50%); pointer-events: none; }
+.cursor-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--primary); box-shadow: 0 6px 18px rgba(45,212,191,0.12); transition: transform .12s ease, opacity .12s ease, background .12s ease; transform-origin: center; }
+.cursor-ring { width: 42px; height: 42px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.06); box-shadow: 0 10px 30px rgba(2,6,12,0.5); transition: transform .16s cubic-bezier(.2,.9,.2,1), opacity .18s; transform-origin: center; }
+.cursor-ring::after { content: ''; position: absolute; inset: 0; border-radius: 50%; box-shadow: 0 0 24px rgba(124,58,237,0.06) inset; }
+
+.cursor-hover { transform: translate(-50%, -50%) scale(1.45); border-color: var(--primary); opacity: 0.95; }
+.cursor-dot.cursor-hover { transform: translate(-50%, -50%) scale(0.6); background: var(--primary); }
+.cursor-ring.cursor-down, .cursor-dot.cursor-down { transform: translate(-50%, -50%) scale(0.9); opacity: 0.9; }
+
+/* Hide custom cursor on touch devices via media query */
+@media (pointer: coarse) {
+    .custom-cursor { display: none !important; }
 }

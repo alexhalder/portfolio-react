@@ -9,6 +9,7 @@ import Admin from './Admin'
 import Login from './Login'
 import BottomNav from './BottomNav'
 import Splash from './Splash'
+import Cursor from './Cursor'
 
 function App() {
   const [user, setUser] = useState(null)
@@ -40,6 +41,7 @@ function App() {
         <Route path="/login" element={!user ? <Login /> : <Navigate to="/admin" />} />
       </Routes>
       <BottomNav />
+      <Cursor />
     </Router>
   )
 }
