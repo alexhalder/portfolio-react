@@ -400,6 +400,55 @@ section {
     }
 }
 
+/* Bottom navigation for mobile */
+.bottom-nav {
+    position: fixed;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 28px);
+    max-width: 980px;
+    padding: 8px 10px;
+    display: none; /* enabled on small screens */
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    z-index: 1200;
+    background: linear-gradient(180deg, rgba(6,12,24,0.75), rgba(6,12,24,0.6));
+    backdrop-filter: blur(12px);
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.05);
+    box-shadow: 0 8px 30px rgba(2,6,20,0.6);
+}
+
+.bn-item {
+    flex: 1 1 0;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 8px 6px;
+    color: var(--light);
+    text-decoration: none;
+    font-size: 0.72rem;
+    transition: color 0.18s ease, transform 0.12s ease;
+}
+
+.bn-item svg { color: var(--light); }
+
+.bn-item.active {
+    color: var(--primary);
+    transform: translateY(-2px);
+}
+
+.bn-item.active svg { color: var(--primary); }
+
+@media (max-width: 900px) {
+    .bottom-nav { display: flex; }
+    nav { display: none; } /* hide top pill nav on small screens to favor bottom app nav */
+}
+
 .about-text h2 {
     font-size: 2.2rem;
     margin-bottom: 18px;
@@ -1192,3 +1241,11 @@ footer {
 html {
     scroll-behavior: smooth;
 }
+
+/* Hide the top nav when admin is active */
+body.admin-mode nav {
+    display: none !important;
+}
+
+/* Ensure admin content sits above the background (canvas will be z-index 0) */
+body.admin-mode .admin-content { position: relative; z-index: 1; }

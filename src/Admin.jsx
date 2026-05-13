@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import AdminParticles from './AdminParticles'
 import { db, auth } from './firebase'
 import { collection, doc, setDoc, getDocs, deleteDoc } from 'firebase/firestore'
 import { signOut } from 'firebase/auth'
@@ -11,6 +12,16 @@ const Admin = () => {
     const [saving, setSaving] = useState(false)
     const [message, setMessage] = useState('')
     const navigate = useNavigate()
+
+    const handleLogout = async () => {
+        try {
+            await signOut(auth)
+            navigate('/login')
+        } catch (err) {
+            console.error('Logout failed:', err)
+            setMessage('Logout failed. Please try again.')
+        }
+    }
 
     useEffect(() => {
         const fetchData = async () => {
@@ -62,6 +73,12 @@ const Admin = () => {
         }
         if (data) fetchMessages();
     }, [data]);
+
+    // toggle admin-mode class on body to hide global nav and enable admin-specific styles
+    useEffect(() => {
+        document.body.classList.add('admin-mode')
+        return () => document.body.classList.remove('admin-mode')
+    }, [])
 
     const handleSave = async (e) => {
         e.preventDefault();
@@ -118,13 +135,125 @@ const Admin = () => {
         }
     }
 
+    // Three-pane UI state
+    const [activeSection, setActiveSection] = useState('identity')
+    const [selectedItemIndex, setSelectedItemIndex] = useState(0)
+
+    const sectionsMeta = [
+        { id: 'identity', label: 'Identity & Branding' },
+        { id: 'hero', label: 'Hero' },
+        { id: 'about', label: 'About' },
+        { id: 'settings', label: 'Settings' },
+        { id: 'skills', label: 'Skills' },
+        { id: 'projects', label: 'Projects' },
+        { id: 'education', label: 'Education' },
+        { id: 'socials', label: 'Socials' },
+        { id: 'inbox', label: 'Inbox' }
+    ];
+
+    const selectSection = (id) => { setActiveSection(id); setSelectedItemIndex(0); }
+
+    const renderDetail = (section) => {
+        if (!data) return <div>Loading...</div>
+
+        switch (section) {
+            case 'identity':
+                return (
+                    <>
+                        <h4 style={{marginBottom: '12px', color: '#9fb8d9'}}>Identity Preview</h4>
+                        <div style={{display: 'grid', gap: '12px'}}>
+                            <InputField label="Site Name" value={data.hero?.siteName} onChange={(v) => updateNestedData('hero', 'siteName', v)} />
+                            <InputField label="Tab Title" value={data.hero?.tabTitle} onChange={(v) => updateNestedData('hero', 'tabTitle', v)} />
+                        </div>
+                    </>
+                )
+            case 'hero':
+                return (
+                    <>
+                        <h4 style={{marginBottom: '12px', color: '#9fb8d9'}}>Hero Preview</h4>
+                        <div style={{display: 'grid', gap: '12px'}}>
+                            <InputField label="Name" value={data.hero?.name} onChange={(v) => updateNestedData('hero', 'name', v)} />
+                            <InputField label="Job Title" value={data.hero?.jobTitle} onChange={(v) => updateNestedData('hero', 'jobTitle', v)} />
+                            <label style={labelStyle}>Intro Headline</label>
+                            <textarea style={textareaStyle} rows="3" value={data.hero?.headline} onChange={(e) => updateNestedData('hero', 'headline', e.target.value)} />
+                        </div>
+                    </>
+                )
+            case 'about':
+                return (
+                    <>
+                        <h4 style={{marginBottom: '12px', color: '#9fb8d9'}}>About</h4>
+                        <div style={{display: 'grid', gap: '12px'}}>
+                            <textarea style={textareaStyle} rows="2" value={data.about?.text1} onChange={(e) => updateNestedData('about', 'text1', e.target.value)} />
+                            <textarea style={textareaStyle} rows="2" value={data.about?.text2} onChange={(e) => updateNestedData('about', 'text2', e.target.value)} />
+                            <textarea style={textareaStyle} rows="2" value={data.about?.text3} onChange={(e) => updateNestedData('about', 'text3', e.target.value)} />
+                        </div>
+                    </>
+                )
+            case 'settings':
+                return (
+                    <>
+                        <h4 style={{marginBottom: '12px', color: '#9fb8d9'}}>Settings</h4>
+                        <div style={{display: 'flex', gap: '12px', flexDirection: 'column'}}>
+                            <label style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
+                                <input type="checkbox" checked={!!data.settings?.showModel} onChange={(e) => updateNestedData('settings', 'showModel', e.target.checked)} />
+                                <span style={{fontSize: '0.95rem'}}>Show About Model / Terminal</span>
+                            </label>
+                            <label style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
+                                <input type="checkbox" checked={!!data.settings?.showTechCube} onChange={(e) => updateNestedData('settings', 'showTechCube', e.target.checked)} />
+                                <span style={{fontSize: '0.95rem'}}>Show Tech Cube</span>
+                            </label>
+                            <label style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
+                                <input type="checkbox" checked={!!data.settings?.enableRain} onChange={(e) => updateNestedData('settings', 'enableRain', e.target.checked)} />
+                                <span style={{fontSize: '0.95rem'}}>Enable Coding Rain Background</span>
+                            </label>
+                        </div>
+                    </>
+                )
+            case 'skills':
+            case 'projects':
+            case 'education':
+            case 'socials':
+                return (
+                    <DynamicEditor title={section.charAt(0).toUpperCase() + section.slice(1)} section={section} items={data[section].items} updateListItem={updateListItem} removeItem={removeItem} addItem={() => addItem(section, {})} />
+                )
+            case 'inbox':
+                return (
+                    <AdminCard id="inbox" title={`Inbox Messages (${messages.length})`} color="#e67e22">
+                        <div style={{display: mssagesGridStyle}}>
+                            {messages.length === 0 ? <p style={{opacity: 0.4}}>No messages received yet.</p> : messages.map((m, i) => (
+                                <div key={i} style={inboxItemStyle}>
+                                    <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                                        <strong style={{color: '#3498db'}}>{m.name}</strong>
+                                        <button type="button" onClick={() => deleteMessage(m.id)} style={delBtnStyle}>Delete</button>
+                                    </div>
+                                    <div style={{fontSize: '0.8rem', opacity: 0.5, margin: '5px 0'}}>{m.email}</div>
+                                    <p style={{fontSize: '0.9rem', opacity: 0.8, background: 'rgba(0,0,0,0.1)', padding: '10px', borderRadius: '5px'}}>{m.message}</p>
+                                    <div style={{fontSize: '0.7rem', opacity: 0.3, marginTop: '5px'}}>{m.timestamp && m.timestamp.toDate ? m.timestamp.toDate().toLocaleString() : 'Recently'}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </AdminCard>
+                )
+            default:
+                return <div>Unknown section</div>
+        }
+    }
+
     if (loading) return <div style={loadingStyle}>Loading Dashboard...</div>
     if (!data) return <div style={loadingStyle}>Error loading data.</div>
 
     return (
-        <div style={adminContainerStyle}>
-            {/* Minimal Mobile Header */}
-            <div className="mobile-header" style={mobileHeaderStyle}>Admin Dashboard</div>
+        <div className="admin-content" style={adminContainerStyle}>
+            <AdminParticles count={90} color="220,230,255" />
+            {/* Minimal Mobile Header - matches site aesthetic */}
+            <div className="mobile-header" style={mobileHeaderStyle}>
+                    <div style={{display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px'}}>
+                    <a href="/" style={{color: 'var(--primary)', textDecoration: 'none', fontWeight: 700}}>← Site</a>
+                    <div style={{fontWeight: 700}}>Admin Dashboard</div>
+                    <button onClick={handleLogout} style={{background: 'transparent', border: 'none', color: '#e74c3c', fontWeight: 700, cursor: 'pointer'}}>Logout</button>
+                </div>
+            </div>
 
             {/* Main Wrapper */}
             <div style={wrapperStyle}>
@@ -134,98 +263,51 @@ const Admin = () => {
                         <h2 style={{fontSize: '1.4rem', color: '#3498db', marginBottom: '5px'}}>Admin Panel</h2>
                         <span style={{fontSize: '0.7rem', opacity: 0.5, letterSpacing: '1px'}}>DASHBOARD V2.0</span>
                     </div>
-                    <div style={{marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px'}}>
-                        <a href="/" target="_blank" style={viewSiteStyle}>🌐 View Live Portfolio</a>
-                        <button onClick={() => signOut(auth)} style={logoutBtnStyle}>🚪 Logout Session</button>
-                    </div>
+                        <nav style={sidebarNavStyle} aria-label="Admin Sections">
+                            {sectionsMeta.map(s => (
+                                <button key={s.id} onClick={() => selectSection(s.id)} style={{...sidebarNavItemStyle, textAlign: 'left', background: activeSection === s.id ? 'rgba(52,152,219,0.06)' : 'transparent', color: activeSection === s.id ? 'var(--primary)' : 'var(--light)'}}>{s.label}</button>
+                            ))}
+                        </nav>
+                        <div style={{marginTop: '20px', display: 'flex', flexDirection: 'column', gap: '10px'}}>
+                            <a href="/" target="_blank" style={viewSiteStyle}>🌐 View Live Portfolio</a>
+                            <button onClick={handleLogout} style={logoutBtnStyle}>🚪 Logout Session</button>
+                        </div>
                 </div>
 
                 {/* Content Area */}
                 <div style={contentAreaStyle}>
                     {message && <div style={{...toastStyle, background: message.includes('Error') ? '#e74c3c' : '#2ecc71'}}>{message}</div>}
 
-                    <form onSubmit={handleSave}>
-                        {/* 1. Identity Card */}
-                        <AdminCard title="Identity & Branding">
-                            <div style={grid2ColStyle}>
-                                <InputField label="Site Name (Logo Text)" value={data.hero?.siteName} onChange={(v) => updateNestedData('hero', 'siteName', v)} />
-                                <InputField label="Browser Tab Title" value={data.hero?.tabTitle} onChange={(v) => updateNestedData('hero', 'tabTitle', v)} />
-                                <InputField label="Favicon URL" value={data.hero?.faviconUrl} onChange={(v) => updateNestedData('hero', 'faviconUrl', v)} placeholder="Tab icon link..." />
-                            </div>
-                        </AdminCard>
-
-                        {/* 2. Hero Component */}
-                        <AdminCard title="Hero Section & Profile">
-                            <div style={grid2ColStyle}>
-                                <InputField label="Profile Name" value={data.hero?.name} onChange={(v) => updateNestedData('hero', 'name', v)} />
-                                <InputField label="Current Job Title" value={data.hero?.jobTitle} onChange={(v) => updateNestedData('hero', 'jobTitle', v)} />
-                                <InputField label="Profile Image URL" value={data.hero?.imageUrl} onChange={(v) => updateNestedData('hero', 'imageUrl', v)} />
-                                <InputField label="CV / Resume Link" value={data.hero?.cvUrl} onChange={(v) => updateNestedData('hero', 'cvUrl', v)} />
-                            </div>
-                            <div style={{marginTop: '15px'}}>
-                                <label style={labelStyle}>Intro Headline</label>
-                                <textarea style={textareaStyle} rows="3" value={data.hero?.headline} onChange={(e) => updateNestedData('hero', 'headline', e.target.value)} />
-                            </div>
-                        </AdminCard>
-
-
-                        {/* 4. About Details */}
-                        <AdminCard title="About Story">
-                            <div style={{display: 'grid', gap: '15px'}}>
-                                <textarea style={textareaStyle} rows="2" value={data.about?.text1} onChange={(e) => updateNestedData('about', 'text1', e.target.value)} placeholder="Paragraph 1..." />
-                                <textarea style={textareaStyle} rows="2" value={data.about?.text2} onChange={(e) => updateNestedData('about', 'text2', e.target.value)} placeholder="Paragraph 2..." />
-                                <textarea style={textareaStyle} rows="2" value={data.about?.text3} onChange={(e) => updateNestedData('about', 'text3', e.target.value)} placeholder="Paragraph 3..." />
-                            </div>
-                        </AdminCard>
-
-                        {/* Site Settings (toggles) */}
-                        <AdminCard title="Site Settings">
-                            <div style={{display: 'flex', gap: '16px', alignItems: 'center'}}>
-                                <label style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
-                                    <input type="checkbox" checked={!!data.settings?.showModel} onChange={(e) => updateNestedData('settings', 'showModel', e.target.checked)} />
-                                    <span style={{fontSize: '0.95rem'}}>Show About Model / Terminal</span>
-                                </label>
-                                <label style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
-                                    <input type="checkbox" checked={!!data.settings?.showTechCube} onChange={(e) => updateNestedData('settings', 'showTechCube', e.target.checked)} />
-                                    <span style={{fontSize: '0.95rem'}}>Show Tech Cube</span>
-                                </label>
-                                <label style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
-                                    <input type="checkbox" checked={!!data.settings?.enableRain} onChange={(e) => updateNestedData('settings', 'enableRain', e.target.checked)} />
-                                    <span style={{fontSize: '0.95rem'}}>Enable Coding Rain Background</span>
-                                </label>
-                            </div>
-                        </AdminCard>
-
-                        {/* Repeatable Sections */}
-                        <DynamicEditor title="My Skills" section="skills" items={data.skills.items} updateListItem={updateListItem} removeItem={removeItem} addItem={() => addItem('skills', { name: "", level: "Intermediate", percent: 50, icon: "code" })} />
-                        <DynamicEditor title="Showcase Projects" section="projects" items={data.projects.items} updateListItem={updateListItem} removeItem={removeItem} addItem={() => addItem('projects', { title: "", description: "", imageUrl: "", link: "", github: "" })} />
-                        <DynamicEditor title="Educational Background" section="education" items={data.education.items} updateListItem={updateListItem} removeItem={removeItem} addItem={() => addItem('education', { title: "", institution: "", dateRange: "", description: "" })} />
-                        <DynamicEditor title="Social Presence" section="socials" items={data.socials.items} updateListItem={updateListItem} removeItem={removeItem} addItem={() => addItem('socials', { name: "", icon: "", url: "" })} />
-
-                        {/* 5. Messages / Inbox */}
-                        <AdminCard title={`Inbox Messages (${messages.length})`} color="#e67e22">
-                            <div style={{display: mssagesGridStyle}}>
-                                {messages.length === 0 ? <p style={{opacity: 0.4}}>No messages received yet.</p> : messages.map((m, i) => (
-                                    <div key={i} style={inboxItemStyle}>
-                                        <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
-                                            <strong style={{color: '#3498db'}}>{m.name}</strong>
-                                            <button type="button" onClick={() => deleteMessage(m.id)} style={delBtnStyle}>Delete</button>
+                    <div style={{display: 'flex', gap: '28px', alignItems: 'flex-start'}}>
+                        {/* Middle list / feed */}
+                        <div style={{width: '360px', maxWidth: '36vw'}}>
+                            <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
+                                {sectionsMeta.map(s => (
+                                    <button key={s.id} onClick={() => selectSection(s.id)} style={{textAlign: 'left', padding: '12px 14px', borderRadius: '10px', background: activeSection === s.id ? 'rgba(52,152,219,0.08)' : 'transparent', border: '1px solid rgba(255,255,255,0.02)', color: activeSection === s.id ? 'var(--primary)' : 'var(--light)', cursor: 'pointer'}}>
+                                        <div style={{fontWeight: 700}}>{s.label}</div>
+                                        <div style={{fontSize: '0.85rem', opacity: 0.6}}>
+                                            {s.id === 'skills' && `${data.skills.items.length} items`}
+                                            {s.id === 'projects' && `${data.projects.items.length} items`}
+                                            {s.id === 'education' && `${data.education.items.length} items`}
+                                            {s.id === 'socials' && `${data.socials.items.length} items`}
+                                            {s.id === 'inbox' && `${messages.length} messages`}
                                         </div>
-                                        <div style={{fontSize: '0.8rem', opacity: 0.5, margin: '5px 0'}}>{m.email}</div>
-                                        <p style={{fontSize: '0.9rem', opacity: 0.8, background: 'rgba(0,0,0,0.1)', padding: '10px', borderRadius: '5px'}}>{m.message}</p>
-                                        <div style={{fontSize: '0.7rem', opacity: 0.3, marginTop: '5px'}}>{m.timestamp && m.timestamp.toDate ? m.timestamp.toDate().toLocaleString() : 'Recently'}</div>
-                                    </div>
+                                    </button>
                                 ))}
                             </div>
-                        </AdminCard>
-
-                        {/* Save Trigger */}
-                        <div style={footerBtnArea}>
-                            <button type="submit" disabled={saving} style={saveBtnStyle}>
-                                {saving ? '🚀 SYNCING...' : 'SAVE ALL PORFOLIO DATA'}
-                            </button>
                         </div>
-                    </form>
+
+                        {/* Right detail panel */}
+                        <div style={{flex: 1}}>
+                            {message && <div style={{...toastStyle, background: message.includes('Error') ? '#e74c3c' : '#2ecc71'}}>{message}</div>}
+                            <form onSubmit={handleSave}>
+                                <div style={{marginBottom: '18px'}}>{renderDetail(activeSection)}</div>
+                                <div style={footerBtnArea}>
+                                    <button type="submit" disabled={saving} style={saveBtnStyle}>{saving ? '🚀 SYNCING...' : 'SAVE CHANGES'}</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -243,8 +325,8 @@ const Admin = () => {
 }
 
 // Helper Components
-const AdminCard = ({ title, children, color = '#3498db' }) => (
-    <div style={cardStyle}>
+const AdminCard = ({ id, title, children, color = '#3498db' }) => (
+    <div id={id} style={cardStyle}>
         <h3 style={{...sectionTitleStyle, color}}>{title}</h3>
         {children}
     </div>
@@ -284,7 +366,7 @@ const IconSuggestions = ({ type }) => {
 }
 
 const DynamicEditor = ({ title, items, updateListItem, removeItem, addItem, section }) => (
-    <AdminCard title={title}>
+    <AdminCard id={section} title={title}>
         <div style={{display: 'flex', justifyContent: 'space-between', marginBottom: '20px'}}>
             <span style={{fontSize: '0.8rem', opacity: 0.4}}>Items Count: {items.length}</span>
             <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}>
@@ -331,6 +413,8 @@ const toastStyle = { position: 'fixed', top: '20px', right: '20px', padding: '16
 const loadingStyle = { height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0a0f1d', color: '#3498db', fontSize: '1.2rem' };
 const viewSiteStyle = { padding: '12px', textAlign: 'center', background: 'rgba(52, 152, 219, 0.1)', color: '#3498db', borderRadius: '10px', textDecoration: 'none', fontSize: '0.9rem' };
 const logoutBtnStyle = { padding: '12px', background: 'rgba(231, 76, 60, 0.1)', color: '#e74c3c', borderRadius: '10px', border: '1px solid rgba(231, 76, 60, 0.2)', cursor: 'pointer', fontSize: '0.9rem' };
+const sidebarNavStyle = { display: 'flex', flexDirection: 'column', marginTop: '18px', gap: '8px' };
+const sidebarNavItemStyle = { color: 'var(--light)', textDecoration: 'none', padding: '8px 10px', borderRadius: '8px', background: 'transparent', transition: 'background 0.12s, color 0.12s', fontSize: '0.95rem' };
 const inboxItemStyle = { borderBottom: '1px solid rgba(255,255,255,0.05)', paddingBottom: '15px', marginBottom: '15px' };
 const mssagesGridStyle = 'grid';
 const delBtnStyle = { color: '#e74c3c', background: 'none', border: 'none', fontSize: '0.8rem', cursor: 'pointer', opacity: 0.7 };

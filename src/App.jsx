@@ -7,6 +7,7 @@ import { auth } from './firebase'
 import Portfolio from './Portfolio'
 import Admin from './Admin'
 import Login from './Login'
+import BottomNav from './BottomNav'
 
 function App() {
   const [user, setUser] = useState(null)
@@ -29,6 +30,7 @@ function App() {
         <Route path="/admin" element={user ? <Admin /> : <Navigate to="/login" />} />
         <Route path="/login" element={!user ? <Login /> : <Navigate to="/admin" />} />
       </Routes>
+      <BottomNav />
     </Router>
   )
 }
