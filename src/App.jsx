@@ -24,7 +24,7 @@ function App() {
   }, [])
 
   useEffect(() => {
-    const t = setTimeout(() => setShowSplash(false), 3000)
+    const t = setTimeout(() => setShowSplash(false), 2000)
     return () => clearTimeout(t)
   }, [])
 
