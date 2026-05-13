@@ -31,38 +31,39 @@ body {
 /* Navigation */
 nav {
     position: fixed;
-    top: 0;
-    width: 100%;
-    padding: 18px 48px;
+    top: 18px; /* detached from top */
+    left: 50%;
+    transform: translateX(-50%);
+    width: auto;
+    max-width: 980px;
+    padding: 10px 22px;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
+    gap: 18px;
     z-index: 1000;
-    background: rgba(6, 12, 24, 0.6);
-    backdrop-filter: blur(24px);
-    border-bottom: 1px solid rgba(255,255,255,0.03);
-    transform: translateY(-100%);
-    animation: slideDown 0.7s ease-out forwards;
+    background: linear-gradient(180deg, rgba(6,12,24,0.65), rgba(6,12,24,0.55));
+    backdrop-filter: blur(18px);
+    border-radius: 999px; /* pill */
+    border: 1px solid rgba(255,255,255,0.04);
+    box-shadow: 0 10px 30px rgba(3,10,20,0.55);
+    animation: slideDown 0.6s cubic-bezier(0.2,0.8,0.2,1) forwards;
 }
 
 @keyframes slideDown {
-    from {
-        transform: translateY(-100%);
-    }
-
-    to {
-        transform: translateY(0);
-    }
+    from { transform: translateY(-20px) translateX(-50%); opacity: 0 }
+    to   { transform: translateY(0) translateX(-50%); opacity: 1 }
 }
 
 .logo {
-    font-size: 1.8rem;
-    font-weight: 700;
+    font-size: 1.75rem;
+    font-weight: 800;
     color: var(--primary);
     text-transform: uppercase;
-    letter-spacing: 2px;
+    letter-spacing: 1px;
     position: relative;
     overflow: hidden;
+    margin: 0; /* center inside pill */
 }
 
 .logo::after {
@@ -85,7 +86,8 @@ nav {
 
 .nav-links {
     display: flex;
-    gap: 30px;
+    gap: 24px;
+    align-items: center;
 }
 
 .nav-links a {
@@ -454,14 +456,14 @@ section {
 @keyframes blink { 50% { opacity: 0 } }
 
 /* Tech cube (small decorative cube under the terminal) */
-.tech-cube { position: relative; width: 160px; height: 160px; transform-style: preserve-3d; animation: rotate 9s cubic-bezier(0.22,0.61,0.36,1) infinite; transform-origin: center; }
-.tech-cube .cube-face { width: 140px; height: 140px; margin: 10px; border-radius: 12px; display:flex; align-items:center; justify-content:center; background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.03); box-shadow: 0 10px 30px rgba(0,0,0,0.45); }
-.tech-cube .front { transform: translateZ(70px); }
-.tech-cube .back { transform: translateZ(-70px) rotateY(180deg); }
-.tech-cube .right { transform: translateX(70px) rotateY(90deg); }
-.tech-cube .left { transform: translateX(-70px) rotateY(-90deg); }
-.tech-cube .top { transform: translateY(-70px) rotateX(90deg); }
-.tech-cube .bottom { transform: translateY(70px) rotateX(-90deg); }
+.tech-cube { position: relative; width: 220px; height: 220px; transform-style: preserve-3d; animation: rotate 9s cubic-bezier(0.22,0.61,0.36,1) infinite; transform-origin: center; }
+.tech-cube .cube-face { width: 200px; height: 200px; margin: 10px; border-radius: 12px; display:flex; align-items:center; justify-content:center; background: linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); border: 1px solid rgba(255,255,255,0.03); box-shadow: 0 12px 36px rgba(0,0,0,0.45); }
+.tech-cube .front { transform: translateZ(100px); }
+.tech-cube .back { transform: translateZ(-100px) rotateY(180deg); }
+.tech-cube .right { transform: translateX(100px) rotateY(90deg); }
+.tech-cube .left { transform: translateX(-100px) rotateY(-90deg); }
+.tech-cube .top { transform: translateY(-100px) rotateX(90deg); }
+.tech-cube .bottom { transform: translateY(100px) rotateX(-90deg); }
 
 @keyframes modelFloating {
     0%, 100% {

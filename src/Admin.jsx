@@ -21,6 +21,7 @@ const Admin = () => {
                 const defaultData = {
                     hero: { name: "ALEX", headline: "I'm a passionate static web Developer...", jobTitle: "Static Developer", siteName: "Portfolio", tabTitle: "Alex | Portfolio" },
                     about: { text1: "I'm a dedicated...", text2: "When I'm not coding...", text3: "I believe in..." },
+                    settings: { showModel: true, showTechCube: true, enableRain: true },
                     education: { items: [] },
                     skills: { items: [] },
                     projects: { items: [] },
@@ -67,7 +68,7 @@ const Admin = () => {
         setSaving(true);
         setMessage('');
         try {
-            const sections = ['hero', 'about', 'education', 'skills', 'contact', 'socials', 'projects'];
+            const sections = ['hero', 'about', 'settings', 'education', 'skills', 'contact', 'socials', 'projects'];
             for (const section of sections) {
                 if (data[section]) {
                     await setDoc(doc(db, "portfolioData", section), data[section]);
@@ -174,6 +175,24 @@ const Admin = () => {
                                 <textarea style={textareaStyle} rows="2" value={data.about?.text1} onChange={(e) => updateNestedData('about', 'text1', e.target.value)} placeholder="Paragraph 1..." />
                                 <textarea style={textareaStyle} rows="2" value={data.about?.text2} onChange={(e) => updateNestedData('about', 'text2', e.target.value)} placeholder="Paragraph 2..." />
                                 <textarea style={textareaStyle} rows="2" value={data.about?.text3} onChange={(e) => updateNestedData('about', 'text3', e.target.value)} placeholder="Paragraph 3..." />
+                            </div>
+                        </AdminCard>
+
+                        {/* Site Settings (toggles) */}
+                        <AdminCard title="Site Settings">
+                            <div style={{display: 'flex', gap: '16px', alignItems: 'center'}}>
+                                <label style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
+                                    <input type="checkbox" checked={!!data.settings?.showModel} onChange={(e) => updateNestedData('settings', 'showModel', e.target.checked)} />
+                                    <span style={{fontSize: '0.95rem'}}>Show About Model / Terminal</span>
+                                </label>
+                                <label style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
+                                    <input type="checkbox" checked={!!data.settings?.showTechCube} onChange={(e) => updateNestedData('settings', 'showTechCube', e.target.checked)} />
+                                    <span style={{fontSize: '0.95rem'}}>Show Tech Cube</span>
+                                </label>
+                                <label style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
+                                    <input type="checkbox" checked={!!data.settings?.enableRain} onChange={(e) => updateNestedData('settings', 'enableRain', e.target.checked)} />
+                                    <span style={{fontSize: '0.95rem'}}>Enable Coding Rain Background</span>
+                                </label>
                             </div>
                         </AdminCard>
 

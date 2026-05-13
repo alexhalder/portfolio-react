@@ -124,8 +124,8 @@ const Portfolio = () => {
             <div className="floating-element" style={{ bottom: '10%', right: '5%', animationDelay: '-15s' }}></div>
 
             {/* Navigation */}
-            <nav style={{ padding: '20px 30px' }}>
-                <div className="logo" style={{ marginLeft: '15px' }}>{hero?.siteName || "Portfolio"}</div>
+            <nav>
+                <div className="logo">{hero?.siteName || "Portfolio"}</div>
                 <div className="nav-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)} style={{ display: 'none', cursor: 'pointer', fontSize: '1.5rem', color: '#3498db' }}>
                     <i className={isMenuOpen ? "fas fa-times" : "fas fa-bars"}></i>
                 </div>
@@ -174,19 +174,25 @@ const Portfolio = () => {
                     <div className="about-content">
                         <div className="about-cube" style={{ justifyContent: 'flex-start', flex: '1' }}>
                             <div className="model-float">
-                                <div style={{ width: '540px', height: '580px', transform: 'scale(1) translateX(0px)' }}>
-                                    <ModelTyper />
-                                </div>
-                                <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'center' }}>
-                                    <div className="tech-cube" aria-hidden>
+                                {(!data.settings || data.settings.showModel) && (
+                                    <>
+                                        <div style={{ width: '520px', height: '560px', transform: 'scale(1) translateX(0px)' }}>
+                                            <ModelTyper />
+                                        </div>
+                                        <div style={{ marginTop: '8px', display: 'flex', justifyContent: 'center' }}>
+                                            {(!data.settings || data.settings.showTechCube) && (
+                                                <div className="tech-cube" aria-hidden>
                                         <div className="cube-face front"><i className="fab fa-react" style={{ color: '#61DAFB', fontSize: '28px' }}></i></div>
                                         <div className="cube-face right"><i className="fab fa-js-square" style={{ color: '#F7DF1E', fontSize: '28px' }}></i></div>
                                         <div className="cube-face left"><i className="fab fa-node" style={{ color: '#68A063', fontSize: '28px' }}></i></div>
                                         <div className="cube-face top"><i className="fas fa-database" style={{ color: '#9AD3E7', fontSize: '22px' }}></i></div>
                                         <div className="cube-face back"><i className="fab fa-github" style={{ color: '#fff', fontSize: '24px' }}></i></div>
                                         <div className="cube-face bottom"><i className="fab fa-css3-alt" style={{ color: '#1572B6', fontSize: '24px' }}></i></div>
-                                    </div>
-                                </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         </div>
                         <div className="about-text" style={{ flex: '1.5', paddingLeft: '40px' }}>
