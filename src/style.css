@@ -446,7 +446,14 @@ section {
 
 @media (max-width: 900px) {
     .bottom-nav { display: flex; }
-    nav { display: none; } /* hide top pill nav on small screens to favor bottom app nav */
+    /* visually hide the top pill nav without causing layout reflow (prevents flash on mobile address-bar resize) */
+    nav {
+        transform: translateY(-120%) translateX(-50%);
+        opacity: 0;
+        pointer-events: none;
+        transition: transform .22s ease, opacity .22s ease;
+        will-change: transform, opacity;
+    }
 }
 
 .about-text h2 {
@@ -1242,7 +1249,7 @@ html {
     scroll-behavior: smooth;
 }
 
-/* Hide the top nav when admin is active */
+/* Hide the top nav when admin is active (keep as important to override) */
 body.admin-mode nav {
     display: none !important;
 }
@@ -1250,9 +1257,55 @@ body.admin-mode nav {
 /* Ensure admin content sits above the background (canvas will be z-index 0) */
 body.admin-mode .admin-content { position: relative; z-index: 1; }
 
-/* Hide global top nav on small screens (phones) */
+/* For very small phones, keep the same transform-based hide to avoid reflow */
 @media (max-width: 640px) {
     nav {
-        display: none !important;
+        transform: translateY(-120%) translateX(-50%);
+        opacity: 0;
+        pointer-events: none;
+        transition: transform .22s ease, opacity .22s ease;
+        will-change: transform, opacity;
     }
+}
+
+/* Splash screen styles */
+.splash-overlay {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, rgba(2,6,20,0.95), rgba(6,12,24,0.96));
+    z-index: 2500;
+}
+.splash-inner {
+    text-align: center;
+    color: var(--light);
+    padding: 28px 36px;
+    border-radius: 12px;
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.03);
+    box-shadow: 0 18px 60px rgba(0,0,0,0.6);
+}
+.splash-title {
+    font-size: 2.2rem;
+    margin-bottom: 8px;
+    color: var(--primary);
+}
+.splash-sub {
+    margin-bottom: 18px;
+    opacity: 0.9;
+}
+.splash-loader {
+    width: 56px;
+    height: 6px;
+    margin: 0 auto;
+    border-radius: 6px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.12), var(--primary), rgba(255,255,255,0.12));
+    transform-origin: left;
+    animation: splashProgress 3s linear forwards;
+}
+@keyframes splashProgress {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
 }

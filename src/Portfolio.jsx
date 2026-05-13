@@ -32,7 +32,19 @@ const Portfolio = () => {
         }
     }
 
+    // Fetch portfolio data on mount and preload key assets before showing UI
     useEffect(() => {
+        let mounted = true;
+
+        const preloadImage = (src) => new Promise((resolve) => {
+            if (!src) return resolve();
+            const img = new Image();
+            img.src = src;
+            if (img.complete) return resolve();
+            img.onload = () => resolve();
+            img.onerror = () => resolve();
+        });
+
         const fetchData = async () => {
             try {
                 const querySnapshot = await getDocs(collection(db, "portfolioData"));
@@ -41,11 +53,11 @@ const Portfolio = () => {
                     querySnapshot.forEach((doc) => {
                         docData[doc.id] = doc.data();
                     });
+                    if (!mounted) return;
                     setData(docData);
+
                     // Update browser tab title and favicon
-                    if (docData.hero?.tabTitle) {
-                        document.title = docData.hero.tabTitle;
-                    }
+                    if (docData.hero?.tabTitle) document.title = docData.hero.tabTitle;
                     if (docData.hero?.faviconUrl) {
                         let link = document.querySelector("link[rel~='icon']");
                         if (!link) {
@@ -55,30 +67,41 @@ const Portfolio = () => {
                         }
                         link.href = docData.hero.faviconUrl;
                     }
+
+                    // Preload hero image to avoid flash of layout when image appears
+                    const heroImg = docData.hero?.imageUrl || docData.hero?.mobileBgUrl || docData.hero?.bgUrl;
+                    await preloadImage(heroImg);
                 }
             } catch (error) {
                 console.error("Firebase fetch error:", error);
             } finally {
-                setLoading(false)
+                if (!mounted) return;
+                setLoading(false);
             }
         }
+
         fetchData();
 
         const handleResize = () => setIsMobile(window.innerWidth <= 768);
         window.addEventListener('resize', handleResize);
 
-        // Initial particles
-        createParticles();
+        return () => {
+            mounted = false;
+            window.removeEventListener('resize', handleResize);
+        };
+    }, [])
 
+    // After data has loaded, enable particles and scroll reveal observers
+    useEffect(() => {
+        if (loading) return;
+
+        // Initial particles attached to DOM (CSS particles already reference .particles)
         // Reveal Animation Observer
         const observerOptions = { threshold: 0.1 };
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('active');
-                } else {
-                    entry.target.classList.remove('active');
-                }
+                if (entry.isIntersecting) entry.target.classList.add('active');
+                else entry.target.classList.remove('active');
             });
         }, observerOptions);
 
@@ -86,10 +109,10 @@ const Portfolio = () => {
         revealElements.forEach(el => observer.observe(el));
 
         return () => {
-            window.removeEventListener('resize', handleResize);
             revealElements.forEach(el => observer.unobserve(el));
+            observer.disconnect();
         };
-    }, [data])
+    }, [loading])
 
     const createParticles = () => {
         const particleCount = 50;
