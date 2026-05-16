@@ -9,6 +9,7 @@ const Portfolio = () => {
     const [loading, setLoading] = useState(true)
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768)
+    const [navScrolled, setNavScrolled] = useState(false)
     const [formData, setFormData] = useState({ name: '', email: '', message: '' })
     const [submitting, setSubmitting] = useState(false)
     const [submitMsg, setSubmitMsg] = useState('')
@@ -99,9 +100,13 @@ const Portfolio = () => {
         const handleResize = () => setIsMobile(window.innerWidth <= 768);
         window.addEventListener('resize', handleResize);
 
+        const handleScroll = () => setNavScrolled(window.scrollY > 30);
+        window.addEventListener('scroll', handleScroll);
+
         return () => {
             mounted = false;
             window.removeEventListener('resize', handleResize);
+            window.removeEventListener('scroll', handleScroll);
         };
     }, [])
 
@@ -145,9 +150,7 @@ const Portfolio = () => {
 
     const particles = createParticles();
 
-    if (loading) {
-        return <div className="loading">Loading Portfolio...</div>
-    }
+    if (loading) return null
 
     const { hero, about, education, skills, contact, socials, projects } = data || {};
     const effectiveBg = (isMobile && hero?.mobileBgUrl) ? hero.mobileBgUrl : hero?.bgUrl;
@@ -160,8 +163,24 @@ const Portfolio = () => {
             <div className="floating-element" style={{ bottom: '30%', left: '15%', animationDelay: '-10s', width: '120px', height: '120px' }}></div>
             <div className="floating-element" style={{ bottom: '10%', right: '5%', animationDelay: '-15s' }}></div>
 
-            {/* Navigation */}
-            <nav>
+            {/* Navigation - Sticky Glassmorphism */}
+            <nav style={{
+                position: 'sticky',
+                top: 0,
+                zIndex: 1000,
+                transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)',
+                background: navScrolled
+                    ? 'rgba(10, 15, 35, 0.75)'
+                    : 'transparent',
+                backdropFilter: navScrolled ? 'blur(20px) saturate(180%)' : 'none',
+                WebkitBackdropFilter: navScrolled ? 'blur(20px) saturate(180%)' : 'none',
+                borderBottom: navScrolled
+                    ? '1px solid rgba(100, 160, 255, 0.12)'
+                    : '1px solid transparent',
+                boxShadow: navScrolled
+                    ? '0 4px 30px rgba(0,0,20,0.3)'
+                    : 'none',
+            }}>
                 <div className="logo" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     {hero?.siteImage && <img src={hero.siteImage} alt="Logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />}
                     <span>{hero?.siteName || "Portfolio"}</span>
