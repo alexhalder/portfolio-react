@@ -23,6 +23,39 @@ const Admin = () => {
         }
     }
 
+    // Auto-logout after configured minutes of inactivity
+    useEffect(() => {
+        let inactivityTimer;
+        
+        // Default to 30 minutes if not set
+        const timeoutMinutes = (data?.settings?.autoLogoutMinutes && !isNaN(data.settings.autoLogoutMinutes)) 
+            ? parseInt(data.settings.autoLogoutMinutes, 10) 
+            : 30;
+        const timeoutMs = timeoutMinutes * 60 * 1000;
+
+        const logoutUser = () => {
+            console.log(`User inactive for ${timeoutMinutes}m, logging out...`);
+            handleLogout();
+        };
+
+        const resetTimer = () => {
+            clearTimeout(inactivityTimer);
+            inactivityTimer = setTimeout(logoutUser, timeoutMs);
+        };
+
+        // Events that indicate activity
+        const events = ['mousemove', 'mousedown', 'keypress', 'scroll', 'touchstart'];
+        
+        events.forEach(event => document.addEventListener(event, resetTimer));
+        resetTimer(); // Start the timer initially
+
+        return () => {
+            clearTimeout(inactivityTimer);
+            events.forEach(event => document.removeEventListener(event, resetTimer));
+        };
+    }, [data?.settings?.autoLogoutMinutes]); // Re-run when setting changes
+
+
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -32,7 +65,7 @@ const Admin = () => {
                 const defaultData = {
                     hero: { name: "ALEX", headline: "I'm a passionate static web Developer...", jobTitle: "Static Developer", siteName: "Portfolio", tabTitle: "Alex | Portfolio" },
                     about: { text1: "I'm a dedicated...", text2: "When I'm not coding...", text3: "I believe in..." },
-                    settings: { showModel: true, showTechCube: true, enableRain: true },
+                    settings: { showModel: true, showTechCube: true, enableRain: true, autoLogoutMinutes: 30 },
                     education: { items: [] },
                     skills: { items: [] },
                     projects: { items: [] },
@@ -213,6 +246,7 @@ const Admin = () => {
                     <>
                         <h4 style={{marginBottom: '12px', color: '#9fb8d9'}}>Settings</h4>
                         <div style={{display: 'flex', gap: '12px', flexDirection: 'column'}}>
+                            <InputField label="Auto Logout Inactivity Timeout (Minutes)" value={data.settings?.autoLogoutMinutes || 30} onChange={(v) => updateNestedData('settings', 'autoLogoutMinutes', v)} />
                             <label style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
                                 <input type="checkbox" checked={!!data.settings?.showModel} onChange={(e) => updateNestedData('settings', 'showModel', e.target.checked)} />
                                 <span style={{fontSize: '0.95rem'}}>Show About Model / Terminal</span>

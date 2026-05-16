@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { db } from './firebase'
 import { collection, query, getDocs, addDoc, serverTimestamp } from 'firebase/firestore'
 import useProtection from './useProtection'
@@ -12,6 +12,20 @@ const Portfolio = () => {
     const [formData, setFormData] = useState({ name: '', email: '', message: '' })
     const [submitting, setSubmitting] = useState(false)
     const [submitMsg, setSubmitMsg] = useState('')
+    
+    // Admin access secret hold timer
+    const adminHoldTimer = useRef(null);
+    const handleAdminHoldStart = () => {
+        adminHoldTimer.current = setTimeout(() => {
+            window.open('/login', '_blank');
+        }, 3000);
+    };
+    const handleAdminHoldEnd = () => {
+        if (adminHoldTimer.current) {
+            clearTimeout(adminHoldTimer.current);
+            adminHoldTimer.current = null;
+        }
+    };
 
     const handleMsgSubmit = async (e) => {
         e.preventDefault();
@@ -180,7 +194,15 @@ const Portfolio = () => {
                             )}
                         </div>
                     </div>
-                    <div className="hero-image reveal fade-bottom">
+                    <div 
+                        className="hero-image reveal fade-bottom"
+                        onMouseDown={handleAdminHoldStart}
+                        onMouseUp={handleAdminHoldEnd}
+                        onMouseLeave={handleAdminHoldEnd}
+                        onTouchStart={handleAdminHoldStart}
+                        onTouchEnd={handleAdminHoldEnd}
+                        style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
+                    >
                         <div className="profile-card">
                             <div className="profile-img">
                                 <img src={hero?.imageUrl || "/Ax.jpg"} alt="Profile" />
