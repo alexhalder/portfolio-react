@@ -12,6 +12,7 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@simplewebauthn/browser": "^13.3.0",
     "firebase": "^10.8.0",
     "gh-pages": "^6.3.0",
     "lucide-react": "^0.344.0",
