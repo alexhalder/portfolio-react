@@ -8,13 +8,13 @@ import Portfolio from './Portfolio'
 import Admin from './Admin'
 import Login from './Login'
 import BottomNav from './BottomNav'
-import Splash from './Splash'
+import GlassBreak from './GlassBreak'
 import Cursor from './Cursor'
 
 function App() {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [showSplash, setShowSplash] = useState(true)
+  const [showGlass, setShowGlass] = useState(true)
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -24,25 +24,23 @@ function App() {
     return () => unsubscribe()
   }, [])
 
-  useEffect(() => {
-    const t = setTimeout(() => setShowSplash(false), 2000)
-    return () => clearTimeout(t)
-  }, [])
-
-  if (showSplash) return <Splash message="Welcome" subtitle="Entering portfolio..." />
-
-  if (loading) return <div className="loading">Loading...</div>
-
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Portfolio />} />
-        <Route path="/admin" element={user ? <Admin /> : <Navigate to="/login" />} />
-        <Route path="/login" element={!user ? <Login /> : <Navigate to="/admin" />} />
-      </Routes>
-      <BottomNav />
-      <Cursor />
-    </Router>
+    <>
+      {/* Glass break plays for 3 seconds on every visit */}
+      {showGlass && <GlassBreak onDone={() => setShowGlass(false)} />}
+
+      {!loading && (
+        <Router>
+          <Routes>
+            <Route path="/" element={<Portfolio />} />
+            <Route path="/admin" element={user ? <Admin /> : <Navigate to="/login" />} />
+            <Route path="/login" element={!user ? <Login /> : <Navigate to="/admin" />} />
+          </Routes>
+          <BottomNav />
+          <Cursor />
+        </Router>
+      )}
+    </>
   )
 }
 
