@@ -148,7 +148,10 @@ const Portfolio = () => {
 
             {/* Navigation */}
             <nav>
-                <div className="logo">{hero?.siteName || "Portfolio"}</div>
+                <div className="logo" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    {hero?.siteImage && <img src={hero.siteImage} alt="Logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />}
+                    <span>{hero?.siteName || "Portfolio"}</span>
+                </div>
                 <div className="nav-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)} style={{ display: 'none', cursor: 'pointer', fontSize: '1.5rem', color: '#3498db' }}>
                     <i className={isMenuOpen ? "fas fa-times" : "fas fa-bars"}></i>
                 </div>
@@ -296,14 +299,25 @@ const Portfolio = () => {
                         {projects?.items?.map((project, index) => (
                             <div key={index} className="skill-card reveal fade-bottom" style={{ padding: '0', overflow: 'hidden', textAlign: 'left' }}>
                                 <div style={{ height: '200px', overflow: 'hidden' }}>
-                                    <img src={project.imageUrl} alt={project.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                    {(project.imageUrl || project.image) ? (
+                                        <img 
+                                            src={project.imageUrl || project.image} 
+                                            alt={project.title} 
+                                            style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                                            onError={(e) => { e.target.style.display = 'none'; }}
+                                        />
+                                    ) : (
+                                        <div style={{ width: '100%', height: '100%', background: 'rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0.5 }}>
+                                            No Image
+                                        </div>
+                                    )}
                                 </div>
                                 <div style={{ padding: '20px' }}>
                                     <h3 style={{ color: '#3498db' }}>{project.title}</h3>
                                     <p style={{ fontSize: '0.9rem', marginBottom: '20px', opacity: 0.8 }}>{project.description}</p>
                                     <div style={{ display: 'flex', gap: '15px' }}>
-                                        <a href={project.link} target="_blank" rel="noopener noreferrer" className="btn" style={{ padding: '8px 20px', fontSize: '0.8rem' }}>Live Demo</a>
-                                        <a href={project.github} target="_blank" rel="noopener noreferrer" className="btn" style={{ padding: '8px 20px', fontSize: '0.8rem', background: 'transparent', borderColor: '#3498db', color: '#3498db' }}>GitHub</a>
+                                        {project.link && <a href={project.link} target="_blank" rel="noopener noreferrer" className="btn" style={{ padding: '8px 20px', fontSize: '0.8rem' }}>Live Demo</a>}
+                                        {project.github && <a href={project.github} target="_blank" rel="noopener noreferrer" className="btn" style={{ padding: '8px 20px', fontSize: '0.8rem', background: 'transparent', borderColor: '#3498db', color: '#3498db' }}>GitHub</a>}
                                     </div>
                                 </div>
                             </div>

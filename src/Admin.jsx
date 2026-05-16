@@ -114,6 +114,19 @@ const Admin = () => {
             const iconName = (value || '').toLowerCase();
             if (brandColors[iconName]) newList[index].color = brandColors[iconName];
         }
+
+        // Auto-fill skill level based on percent
+        if (section === 'skills' && field === 'percent') {
+            const pct = parseInt(value, 10);
+            if (!isNaN(pct)) {
+                if (pct >= 90) newList[index].level = 'Expert';
+                else if (pct >= 70) newList[index].level = 'Advanced';
+                else if (pct >= 40) newList[index].level = 'Intermediate';
+                else newList[index].level = 'Beginner';
+            } else if (value === '') {
+                newList[index].level = '';
+            }
+        }
         
         setData(prev => ({ ...prev, [section]: { ...prev[section], items: newList } }));
     }
@@ -164,6 +177,8 @@ const Admin = () => {
                         <div style={{display: 'grid', gap: '12px'}}>
                             <InputField label="Site Name" value={data.hero?.siteName} onChange={(v) => updateNestedData('hero', 'siteName', v)} />
                             <InputField label="Tab Title" value={data.hero?.tabTitle} onChange={(v) => updateNestedData('hero', 'tabTitle', v)} />
+                            <ImageField label="Tab Icon (Favicon URL)" value={data.hero?.faviconUrl} onChange={(v) => updateNestedData('hero', 'faviconUrl', v)} />
+                            <ImageField label="Site Logo/Image" value={data.hero?.siteImage} onChange={(v) => updateNestedData('hero', 'siteImage', v)} />
                         </div>
                     </>
                 )
@@ -176,6 +191,9 @@ const Admin = () => {
                             <InputField label="Job Title" value={data.hero?.jobTitle} onChange={(v) => updateNestedData('hero', 'jobTitle', v)} />
                             <label style={labelStyle}>Intro Headline</label>
                             <textarea style={textareaStyle} rows="3" value={data.hero?.headline} onChange={(e) => updateNestedData('hero', 'headline', e.target.value)} />
+                            <ImageField label="Hero Background Image (bgUrl)" value={data.hero?.bgUrl} onChange={(v) => updateNestedData('hero', 'bgUrl', v)} />
+                            <ImageField label="Hero Mobile Background (mobileBgUrl)" value={data.hero?.mobileBgUrl} onChange={(v) => updateNestedData('hero', 'mobileBgUrl', v)} />
+                            <ImageField label="Profile Image (imageUrl)" value={data.hero?.imageUrl} onChange={(v) => updateNestedData('hero', 'imageUrl', v)} />
                         </div>
                     </>
                 )
@@ -214,8 +232,22 @@ const Admin = () => {
             case 'projects':
             case 'education':
             case 'socials':
+                const defaultItem = (section) => {
+                    if (section === 'projects') return { title: '', description: '', link: '', github: '', imageUrl: '' }
+                    if (section === 'education') return { title: '', institution: '', dateRange: '', description: '' }
+                    if (section === 'skills') return { name: '', level: '', percent: '', icon: '', color: '' }
+                    if (section === 'socials') return { platform: '', url: '', icon: '' }
+                    return {}
+                }
                 return (
-                    <DynamicEditor title={section.charAt(0).toUpperCase() + section.slice(1)} section={section} items={data[section].items} updateListItem={updateListItem} removeItem={removeItem} addItem={() => addItem(section, {})} />
+                    <DynamicEditor 
+                        title={section.charAt(0).toUpperCase() + section.slice(1)} 
+                        section={section} 
+                        items={data[section].items} 
+                        updateListItem={updateListItem} 
+                        removeItem={removeItem} 
+                        addItem={() => addItem(section, defaultItem(section))} 
+                    />
                 )
             case 'inbox':
                 return (
@@ -339,6 +371,40 @@ const InputField = ({ label, value, onChange, placeholder = "" }) => (
     </div>
 )
 
+const ImageField = ({ label, value, onChange }) => {
+    const handleLinkChange = (e) => {
+        const url = e.target.value
+        onChange(url)
+    }
+
+    return (
+        <div style={{marginBottom: '10px'}}>
+            <label style={labelStyle}>{label}</label>
+            
+            <input 
+                type="text" 
+                placeholder="https://example.com/image.jpg"
+                value={value && !value.startsWith('data:') ? value : ''}
+                onChange={handleLinkChange}
+                style={{...inputStyle, padding: '12px 16px'}}
+            />
+
+            {value && (
+                <div style={{marginTop: '12px', borderRadius: '8px', overflow: 'hidden', background: 'rgba(0,0,0,0.2)', padding: '8px', border: '1px solid rgba(255,255,255,0.1)'}}>
+                    <img 
+                        src={value} 
+                        alt={label} 
+                        style={{width: '100%', maxHeight: '200px', objectFit: 'cover', borderRadius: '5px'}}
+                        onError={(e) => {
+                            e.target.style.display = 'none'
+                        }}
+                    />
+                </div>
+            )}
+        </div>
+    )
+}
+
 const IconSuggestions = ({ type }) => {
     const skillsIcons = [
         "python", "js-square", "react", "html5", "css3-alt", "php", "java", "node-js", 
@@ -382,7 +448,21 @@ const DynamicEditor = ({ title, items, updateListItem, removeItem, addItem, sect
                     <button type="button" onClick={() => removeItem(section, idx)} style={closeBtnStyle}>&times;</button>
                     <div style={grid2ColStyle}>
                         {Object.keys(item).map(key => (
-                            <InputField key={key} label={key.toUpperCase()} value={item[key]} onChange={(val) => updateListItem(section, idx, key, val)} />
+                            key === 'image' || key === 'logo' || key === 'thumbnail' || key === 'imageUrl' ? (
+                                <ImageField 
+                                    key={key}
+                                    label={key.toUpperCase()} 
+                                    value={item[key]} 
+                                    onChange={(val) => updateListItem(section, idx, key, val)} 
+                                />
+                            ) : (
+                                <InputField 
+                                    key={key}
+                                    label={key.toUpperCase()} 
+                                    value={item[key]} 
+                                    onChange={(val) => updateListItem(section, idx, key, val)} 
+                                />
+                            )
                         ))}
                     </div>
                 </div>
