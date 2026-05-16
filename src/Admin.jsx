@@ -268,6 +268,7 @@ const Admin = () => {
                             <ImageField label="Hero Background Image (bgUrl)" value={data.hero?.bgUrl} onChange={(v) => updateNestedData('hero', 'bgUrl', v)} />
                             <ImageField label="Hero Mobile Background (mobileBgUrl)" value={data.hero?.mobileBgUrl} onChange={(v) => updateNestedData('hero', 'mobileBgUrl', v)} />
                             <ImageField label="Profile Image (imageUrl)" value={data.hero?.imageUrl} onChange={(v) => updateNestedData('hero', 'imageUrl', v)} />
+                            <InputField label="View CV URL (cvUrl)" value={data.hero?.cvUrl} onChange={(v) => updateNestedData('hero', 'cvUrl', v)} placeholder="https://drive.google.com/..." />
                         </div>
                     </>
                 )
