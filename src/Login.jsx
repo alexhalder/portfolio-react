@@ -12,7 +12,7 @@ const Login = () => {
     const [showPasswordFallback, setShowPasswordFallback] = useState(false)
     const navigate = useNavigate()
 
-    const API_URL = 'http://localhost:5000'; // Make sure the Node server is running
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000'; // Uses env variable in production
 
     // Traditional Email/Password Login
     const handleSubmit = async (e) => {

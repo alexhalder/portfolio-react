@@ -7,18 +7,28 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// IMPORTANT: The user must provide the serviceAccountKey.json file from Firebase Console
+// IMPORTANT: The user must provide the serviceAccountKey.json file locally, 
+// or set FIREBASE_SERVICE_ACCOUNT_BASE64 in Production (Render)
 try {
-  const serviceAccount = require('./serviceAccountKey.json');
-  admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-  });
-  console.log('Firebase Admin Initialized successfully.');
+  if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
+    // Production
+    const serviceAccount = JSON.parse(Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64').toString('utf8'));
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+    console.log('Firebase Admin Initialized via Environment Variable.');
+  } else {
+    // Local
+    const serviceAccount = require('./serviceAccountKey.json');
+    admin.initializeApp({
+      credential: admin.credential.cert(serviceAccount)
+    });
+    console.log('Firebase Admin Initialized via local JSON file.');
+  }
 } catch (error) {
   console.error('\n======================================================');
-  console.error('ERROR: Missing or Invalid serviceAccountKey.json');
-  console.error('Please go to Firebase Console > Project Settings > Service Accounts');
-  console.error('Generate a new private key and save it as "serviceAccountKey.json" inside the "server" folder.');
+  console.error('ERROR: Missing or Invalid Firebase Credentials');
+  console.error('Please provide serviceAccountKey.json locally or set the env variable.');
   console.error('======================================================\n');
 }
 
@@ -28,8 +38,14 @@ const db = admin.apps.length ? admin.firestore() : null;
 const ADMIN_USER_ID = 'portfolio_admin_user_id';
 const ADMIN_USERNAME = 'alexhalder2007@gmail.com'; // This should match your Firebase Auth user
 const RP_NAME = 'Portfolio Admin Panel';
-const RP_ID = 'localhost'; // In production, this must match your domain (e.g. yourportfolio.com)
-const ORIGINS = [`http://${RP_ID}:5173`, `http://${RP_ID}:5174`, `http://127.0.0.1:5173`, `http://127.0.0.1:5174`];
+const RP_ID = process.env.RP_ID || 'localhost'; // In production, this will be your Vercel domain
+const ORIGINS = [
+    `https://${RP_ID}`, 
+    `http://${RP_ID}:5173`, 
+    `http://${RP_ID}:5174`, 
+    `http://127.0.0.1:5173`, 
+    `http://127.0.0.1:5174`
+];
 
 // Store active challenge for registration/authentication in memory
 let currentChallenge = null;
@@ -175,7 +191,7 @@ app.post('/passkey/login-verify', async (req, res) => {
   }
 });
 
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Server running on port ${PORT}`);
 });
