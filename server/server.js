@@ -38,14 +38,22 @@ const db = admin.apps.length ? admin.firestore() : null;
 const ADMIN_USER_ID = 'portfolio_admin_user_id';
 const ADMIN_USERNAME = 'alexhalder2007@gmail.com'; // This should match your Firebase Auth user
 const RP_NAME = 'Portfolio Admin Panel';
-const RP_ID = process.env.RP_ID || 'localhost'; // In production, this will be your Vercel domain
+const PROD_DOMAIN = 'ax-alex.vercel.app';
 const ORIGINS = [
-    `https://${RP_ID}`, 
-    `http://${RP_ID}:5173`, 
-    `http://${RP_ID}:5174`, 
-    `http://127.0.0.1:5173`, 
-    `http://127.0.0.1:5174`
+    `https://${PROD_DOMAIN}`,
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:5174'
 ];
+
+const getRpId = (req) => {
+    const origin = req.get('origin') || req.get('referer') || '';
+    if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
+        return 'localhost';
+    }
+    return PROD_DOMAIN;
+};
 
 // Store active challenge for registration/authentication in memory
 let currentChallenge = null;
@@ -55,9 +63,10 @@ app.get('/passkey/register-challenge', async (req, res) => {
   if (!db) return res.status(500).json({ error: 'Firebase not initialized' });
   
   try {
+    const rpID = getRpId(req);
     const options = await generateRegistrationOptions({
       rpName: RP_NAME,
-      rpID: RP_ID,
+      rpID: rpID,
       userID: Buffer.from(ADMIN_USER_ID, 'utf-8'),
       userName: ADMIN_USERNAME,
       attestationType: 'none',
@@ -81,11 +90,12 @@ app.post('/passkey/register-verify', async (req, res) => {
   const { body } = req;
   
   try {
+    const rpID = getRpId(req);
     const verification = await verifyRegistrationResponse({
       response: body,
       expectedChallenge: currentChallenge,
       expectedOrigin: ORIGINS,
-      expectedRPID: RP_ID,
+      expectedRPID: rpID,
     });
 
     if (verification.verified && verification.registrationInfo) {
@@ -129,8 +139,9 @@ app.get('/passkey/login-challenge', async (req, res) => {
     
     const credential = doc.data();
     
+    const rpID = getRpId(req);
     const options = await generateAuthenticationOptions({
-      rpID: RP_ID,
+      rpID: rpID,
       allowCredentials: [{
         id: credential.credentialID,
         type: 'public-key',
@@ -156,12 +167,13 @@ app.post('/passkey/login-verify', async (req, res) => {
     if (!doc.exists) return res.status(404).json({ error: 'Passkey not found' });
     
     const credential = doc.data();
+    const rpID = getRpId(req);
 
     const verification = await verifyAuthenticationResponse({
       response: body,
       expectedChallenge: currentChallenge,
       expectedOrigin: ORIGINS,
-      expectedRPID: RP_ID,
+      expectedRPID: rpID,
       credential: {
         id: credential.credentialID,
         publicKey: Buffer.from(credential.credentialPublicKey, 'base64'),
