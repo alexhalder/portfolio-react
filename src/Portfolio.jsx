@@ -163,24 +163,8 @@ const Portfolio = () => {
             <div className="floating-element" style={{ bottom: '30%', left: '15%', animationDelay: '-10s', width: '120px', height: '120px' }}></div>
             <div className="floating-element" style={{ bottom: '10%', right: '5%', animationDelay: '-15s' }}></div>
 
-            {/* Navigation - Sticky Glassmorphism */}
-            <nav style={{
-                position: 'sticky',
-                top: 0,
-                zIndex: 1000,
-                transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)',
-                background: navScrolled
-                    ? 'rgba(10, 15, 35, 0.75)'
-                    : 'transparent',
-                backdropFilter: navScrolled ? 'blur(20px) saturate(180%)' : 'none',
-                WebkitBackdropFilter: navScrolled ? 'blur(20px) saturate(180%)' : 'none',
-                borderBottom: navScrolled
-                    ? '1px solid rgba(100, 160, 255, 0.12)'
-                    : '1px solid transparent',
-                boxShadow: navScrolled
-                    ? '0 4px 30px rgba(0,0,20,0.3)'
-                    : 'none',
-            }}>
+            {/* Navigation - sticky pill */}
+            <nav>
                 <div className="logo" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                     {hero?.siteImage && <img src={hero.siteImage} alt="Logo" style={{ height: '32px', width: 'auto', objectFit: 'contain' }} />}
                     <span>{hero?.siteName || "Portfolio"}</span>

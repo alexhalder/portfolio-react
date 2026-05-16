@@ -30,12 +30,13 @@ body {
 
 /* Navigation */
 nav {
-    position: fixed;
-    top: 18px; /* detached from top */
-    left: 50%;
-    transform: translateX(-50%);
-    width: auto;
+    position: sticky;
+    top: 18px;
+    left: 0;
+    right: 0;
+    width: fit-content;
     max-width: 980px;
+    margin: 0 auto;
     padding: 10px 22px;
     display: flex;
     justify-content: center;
@@ -53,8 +54,8 @@ nav {
 }
 
 @keyframes slideDown {
-    from { transform: translateY(-20px) translateX(-50%); opacity: 0 }
-    to   { transform: translateY(0) translateX(-50%); opacity: 1 }
+    from { transform: translateY(-20px); opacity: 0 }
+    to   { transform: translateY(0); opacity: 1 }
 }
 
 .logo {
@@ -448,14 +449,14 @@ section {
 
 @media (max-width: 900px) {
     .bottom-nav { display: flex; }
-    /* visually hide the top pill nav without causing layout reflow (prevents flash on mobile address-bar resize) */
+    /* visually hide the top pill nav on mobile */
     nav {
-        transform: translateY(-120%) translateX(-50%);
+        transform: translateY(-120%);
         opacity: 0;
         pointer-events: none;
         transition: transform .22s ease, opacity .22s ease;
         will-change: transform, opacity;
-        animation: none !important; /* stop slideDown animation on small screens */
+        animation: none !important;
     }
 }
 
