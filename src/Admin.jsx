@@ -4,6 +4,7 @@ import { db, auth } from './firebase'
 import { collection, doc, setDoc, getDocs, deleteDoc } from 'firebase/firestore'
 import { signOut } from 'firebase/auth'
 import { useNavigate } from 'react-router-dom'
+import { startRegistration } from '@simplewebauthn/browser'
 
 const Admin = () => {
     const [data, setData] = useState(null)
@@ -20,6 +21,41 @@ const Admin = () => {
         } catch (err) {
             console.error('Logout failed:', err)
             setMessage('Logout failed. Please try again.')
+        }
+    }
+
+    const API_URL = 'http://localhost:5000';
+    
+    const handleRegisterPasskey = async () => {
+        setMessage('Generating registration challenge...');
+        try {
+            const resp = await fetch(`${API_URL}/passkey/register-challenge`);
+            const options = await resp.json();
+            
+            setMessage('Please scan your fingerprint/FaceID...');
+            const regResp = await startRegistration(options);
+            
+            setMessage('Verifying and saving passkey...');
+            const verificationResp = await fetch(`${API_URL}/passkey/register-verify`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(regResp)
+            });
+            
+            const verification = await verificationResp.json();
+            if (verification.verified) {
+                setMessage('Passkey registered successfully! You can now login with it.');
+                setTimeout(() => setMessage(''), 3000);
+            } else {
+                setMessage(verification.error || 'Failed to register passkey on the server.');
+            }
+        } catch (err) {
+            console.error(err);
+            if (err.name !== 'NotAllowedError') {
+                setMessage(err.message || 'Error during passkey registration');
+            } else {
+                setMessage('');
+            }
         }
     }
 
@@ -245,6 +281,14 @@ const Admin = () => {
                 return (
                     <>
                         <h4 style={{marginBottom: '12px', color: '#9fb8d9'}}>Settings</h4>
+                        <div style={{display: 'flex', gap: '12px', flexDirection: 'column', marginBottom: '20px'}}>
+                            <button 
+                                onClick={handleRegisterPasskey}
+                                style={{ width: '100%', padding: '12px', background: 'linear-gradient(135deg, #27ae60, #2ecc71)', color: 'white', border: 'none', borderRadius: '10px', cursor: 'pointer', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                            >
+                                <i className="fas fa-fingerprint"></i> Setup New Fingerprint Passkey
+                            </button>
+                        </div>
                         <div style={{display: 'flex', gap: '12px', flexDirection: 'column'}}>
                             <InputField label="Auto Logout Inactivity Timeout (Minutes)" value={data.settings?.autoLogoutMinutes || 30} onChange={(v) => updateNestedData('settings', 'autoLogoutMinutes', v)} />
                             <label style={{display: 'flex', gap: '8px', alignItems: 'center'}}>

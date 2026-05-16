@@ -70,41 +70,7 @@ const Login = () => {
         }
     }
 
-    // 2. Passkey Registration Flow
-    const handleRegisterPasskey = async () => {
-        setError('');
-        setStatus('Generating registration challenge...');
-        try {
-            const resp = await fetch(`${API_URL}/passkey/register-challenge`);
-            const options = await resp.json();
-            
-            setStatus('Please scan your fingerprint/FaceID...');
-            // Trigger native creation prompt
-            const regResp = await startRegistration(options);
-            
-            setStatus('Verifying and saving passkey...');
-            const verificationResp = await fetch(`${API_URL}/passkey/register-verify`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(regResp)
-            });
-            
-            const verification = await verificationResp.json();
-            if (verification.verified) {
-                setStatus('Passkey registered successfully! You can now login with it.');
-                setTimeout(() => setStatus(''), 3000);
-            } else {
-                setError(verification.error || 'Failed to register passkey on the server.');
-                setStatus('');
-            }
-        } catch (err) {
-            console.error(err);
-            if (err.name !== 'NotAllowedError') {
-                setError(err.message || 'Error during passkey registration');
-            }
-            setStatus('');
-        }
-    }
+
 
     return (
         <div className="login-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#0a0f1d' }}>
@@ -121,13 +87,6 @@ const Login = () => {
                     style={{ width: '100%', padding: '16px', background: 'linear-gradient(135deg, #3498db, #2980b9)', color: 'white', border: 'none', borderRadius: '12px', cursor: 'pointer', fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '15px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', boxShadow: '0 8px 15px rgba(52, 152, 219, 0.3)' }}
                 >
                     <i className="fas fa-fingerprint"></i> Login with Passkey
-                </button>
-
-                <button 
-                    onClick={handleRegisterPasskey}
-                    style={{ width: '100%', padding: '12px', background: 'rgba(255,255,255,0.05)', color: '#fff', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', cursor: 'pointer', fontSize: '0.9rem', marginBottom: '30px' }}
-                >
-                    Setup New Passkey
                 </button>
 
                 <div style={{ position: 'relative', margin: '20px 0' }}>
