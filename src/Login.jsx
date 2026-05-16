@@ -38,7 +38,14 @@ const Login = () => {
             }
             
             const options = await resp.json();
-            setStatus('Waiting for fingerprint/FaceID...');
+            
+            if (options.error) {
+                setError(`Backend Error: ${options.error}`);
+                setStatus('');
+                return;
+            }
+            
+            setStatus('Please scan your fingerprint/FaceID...');
             
             // Trigger native fingerprint/face id prompt
             const authResp = await startAuthentication(options);

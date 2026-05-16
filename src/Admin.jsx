@@ -32,6 +32,11 @@ const Admin = () => {
             const resp = await fetch(`${API_URL}/passkey/register-challenge`);
             const options = await resp.json();
             
+            if (options.error) {
+                setMessage(`Backend Error: ${options.error}`);
+                return;
+            }
+            
             setMessage('Please scan your fingerprint/FaceID...');
             const regResp = await startRegistration(options);
             
@@ -290,6 +295,7 @@ const Admin = () => {
                             </button>
                         </div>
                         <div style={{display: 'flex', gap: '12px', flexDirection: 'column'}}>
+                            <InputField label="Live Frontend Domain (e.g. ax-alex.vercel.app)" value={data.settings?.frontendDomain || ''} onChange={(v) => updateNestedData('settings', 'frontendDomain', v)} />
                             <InputField label="Auto Logout Inactivity Timeout (Minutes)" value={data.settings?.autoLogoutMinutes || 30} onChange={(v) => updateNestedData('settings', 'autoLogoutMinutes', v)} />
                             <label style={{display: 'flex', gap: '8px', alignItems: 'center'}}>
                                 <input type="checkbox" checked={!!data.settings?.showModel} onChange={(e) => updateNestedData('settings', 'showModel', e.target.checked)} />

@@ -38,21 +38,29 @@ const db = admin.apps.length ? admin.firestore() : null;
 const ADMIN_USER_ID = 'portfolio_admin_user_id';
 const ADMIN_USERNAME = 'alexhalder2007@gmail.com'; // This should match your Firebase Auth user
 const RP_NAME = 'Portfolio Admin Panel';
-const PROD_DOMAIN = 'ax-alex.vercel.app';
-const ORIGINS = [
-    `https://${PROD_DOMAIN}`,
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'http://127.0.0.1:5173',
-    'http://127.0.0.1:5174'
-];
-
-const getRpId = (req) => {
+const getRpId = async (req) => {
     const origin = req.get('origin') || req.get('referer') || '';
     if (origin.includes('localhost') || origin.includes('127.0.0.1')) {
-        return 'localhost';
+        return { rpID: 'localhost', prodOrigins: ['http://localhost:5173', 'http://localhost:5174', 'http://127.0.0.1:5173', 'http://127.0.0.1:5174'] };
     }
-    return PROD_DOMAIN;
+    
+    // Fetch frontendDomain from Firestore
+    let prodDomain = 'ax-alex.vercel.app';
+    if (db) {
+        try {
+            const dataDoc = await db.collection('portfolio').doc('data').get();
+            if (dataDoc.exists) {
+                const settings = dataDoc.data().settings;
+                if (settings && settings.frontendDomain) {
+                    prodDomain = settings.frontendDomain;
+                }
+            }
+        } catch(e) {
+            console.error('Error fetching domain from Firestore', e);
+        }
+    }
+    
+    return { rpID: prodDomain, prodOrigins: [`https://${prodDomain}`] };
 };
 
 // Store active challenge for registration/authentication in memory
@@ -63,7 +71,7 @@ app.get('/passkey/register-challenge', async (req, res) => {
   if (!db) return res.status(500).json({ error: 'Firebase not initialized' });
   
   try {
-    const rpID = getRpId(req);
+    const { rpID } = await getRpId(req);
     const options = await generateRegistrationOptions({
       rpName: RP_NAME,
       rpID: rpID,
@@ -90,11 +98,11 @@ app.post('/passkey/register-verify', async (req, res) => {
   const { body } = req;
   
   try {
-    const rpID = getRpId(req);
+    const { rpID, prodOrigins } = await getRpId(req);
     const verification = await verifyRegistrationResponse({
       response: body,
       expectedChallenge: currentChallenge,
-      expectedOrigin: ORIGINS,
+      expectedOrigin: prodOrigins,
       expectedRPID: rpID,
     });
 
@@ -139,7 +147,7 @@ app.get('/passkey/login-challenge', async (req, res) => {
     
     const credential = doc.data();
     
-    const rpID = getRpId(req);
+    const { rpID } = await getRpId(req);
     const options = await generateAuthenticationOptions({
       rpID: rpID,
       allowCredentials: [{
@@ -167,12 +175,12 @@ app.post('/passkey/login-verify', async (req, res) => {
     if (!doc.exists) return res.status(404).json({ error: 'Passkey not found' });
     
     const credential = doc.data();
-    const rpID = getRpId(req);
+    const { rpID, prodOrigins } = await getRpId(req);
 
     const verification = await verifyAuthenticationResponse({
       response: body,
       expectedChallenge: currentChallenge,
-      expectedOrigin: ORIGINS,
+      expectedOrigin: prodOrigins,
       expectedRPID: rpID,
       credential: {
         id: credential.credentialID,
