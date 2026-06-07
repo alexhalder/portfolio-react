@@ -1251,19 +1251,124 @@ footer {
 .reveal {
     position: relative;
     opacity: 0;
-    transition: all 1.2s ease;
+    transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .reveal.active {
     opacity: 1;
 }
 
+/* Fade Bottom */
 .fade-bottom {
     transform: translateY(50px);
 }
 
 .fade-bottom.active {
     transform: translateY(0);
+}
+
+/* Fade Top */
+.fade-top {
+    transform: translateY(-50px);
+}
+
+.fade-top.active {
+    transform: translateY(0);
+}
+
+/* Fade Left */
+.fade-left {
+    transform: translateX(-50px);
+}
+
+.fade-left.active {
+    transform: translateX(0);
+}
+
+/* Fade Right */
+.fade-right {
+    transform: translateX(50px);
+}
+
+.fade-right.active {
+    transform: translateX(0);
+}
+
+/* Scale In */
+.scale-in {
+    transform: scale(0.8);
+}
+
+.scale-in.active {
+    transform: scale(1);
+}
+
+/* Rotate In */
+.rotate-in {
+    transform: rotate(-5deg) scale(0.9);
+}
+
+.rotate-in.active {
+    transform: rotate(0) scale(1);
+}
+
+/* Bounce In */
+.bounce-in {
+    transform: scale(0.7);
+}
+
+.bounce-in.active {
+    animation: bounceInEffect 0.8s ease-out forwards;
+}
+
+@keyframes bounceInEffect {
+    0% { transform: scale(0.7); opacity: 0; }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Slide Up with Rotate */
+.slide-up-rotate {
+    transform: translateY(60px) rotateX(10deg);
+    opacity: 0;
+}
+
+.slide-up-rotate.active {
+    transform: translateY(0) rotateX(0);
+    opacity: 1;
+}
+
+/* Zoom Fade */
+.zoom-fade {
+    transform: scale(0.9);
+    opacity: 0;
+}
+
+.zoom-fade.active {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* Flip In */
+.flip-in {
+    transform: rotateY(90deg);
+    opacity: 0;
+}
+
+.flip-in.active {
+    transform: rotateY(0);
+    opacity: 1;
+}
+
+/* Blur Fade */
+.blur-fade {
+    filter: blur(10px);
+    opacity: 0;
+}
+
+.blur-fade.active {
+    filter: blur(0);
+    opacity: 1;
 }
 
 /* Smooth Scrolling */

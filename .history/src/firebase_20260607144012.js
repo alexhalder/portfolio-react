@@ -19,11 +19,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 
-// ⚠️ SECURITY: Disable session persistence
-// User must login every time they access the admin panel
-// - No cookies saved
-// - No localStorage used
-// - Session ends on page refresh or browser close
+// Disable persistence - user must login every time
 setPersistence(auth, browserNone).catch((error) => {
   console.warn("Could not disable persistence:", error);
 });

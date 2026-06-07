@@ -17,8 +17,7 @@ const Admin = () => {
     const handleLogout = async () => {
         try {
             await signOut(auth)
-            // Clear all local storage and session storage for security
-            // Ensures no login data persists across sessions
+            // Clear all local storage and session storage
             localStorage.clear()
             sessionStorage.clear()
             navigate('/login')
